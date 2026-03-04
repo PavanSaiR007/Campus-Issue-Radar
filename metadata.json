@@ -1,0 +1,5 @@
+{
+  "name": "Campus Issue Radar",
+  "description": "A platform for students to report campus issues and admins to track and analyze repeated complaints.",
+  "requestFramePermissions": ["camera"]
+}
