@@ -19,29 +19,36 @@ export default function Login({ onLogin }: LoginProps) {
     setError("");
     setLoading(true);
 
-    try {
-      // In a real app, we'd validate the role on the server too
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          username: role === "student" ? username : "admin", // Simple mapping for demo
-          password 
-        }),
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        onLogin(userData);
-      } else {
-        const data = await response.json();
-        setError(data.error || "Invalid credentials");
+    setTimeout(() => {
+      if (
+        role === "student" &&
+        (
+          (username === "student1" && password === "password") ||
+          (username === "student2" && password === "password") ||
+          (username === "student3" && password === "password")
+        )
+      ) {
+        onLogin({
+          username,
+          role: "student",
+        } as User);
+      } 
+      else if (
+        role === "admin" &&
+        username === "admin" &&
+        password === "password"
+      ) {
+        onLogin({
+          username: "admin",
+          role: "admin",
+        } as User);
+      } 
+      else {
+        setError("Invalid credentials");
       }
-    } catch (err) {
-      setError("Failed to connect to server");
-    } finally {
+
       setLoading(false);
-    }
+    }, 1000);
   };
 
   return (
@@ -68,25 +75,14 @@ export default function Login({ onLogin }: LoginProps) {
             </div>
           </div>
 
-          {role === "student" ? (
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-300 rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#6b84e3]"
-              placeholder="Student ID"
-              required
-            />
-          ) : (
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-300 rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#6b84e3]"
-              placeholder="Admin ID"
-              required
-            />
-          )}
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-4 py-3 border border-slate-300 rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#6b84e3]"
+            placeholder={role === "student" ? "Student ID" : "Admin ID"}
+            required
+          />
 
           <input
             type="password"
@@ -135,4 +131,3 @@ export default function Login({ onLogin }: LoginProps) {
     </div>
   );
 }
-
