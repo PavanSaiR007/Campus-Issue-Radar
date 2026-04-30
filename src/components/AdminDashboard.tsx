@@ -68,7 +68,8 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
 
         {/* Issue Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-[20px] shadow-lg border border-slate-100 flex items-center gap-4">
+          <div className="bg-white p-6 rounded-[20px] shadow-lg border border-slate-100 flex items-center gap-4 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-2 h-full bg-emerald-500" />
             <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
               <CheckCircle2 className="w-6 h-6 text-emerald-600" />
             </div>
@@ -77,18 +78,20 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
               <p className="text-3xl font-bold text-slate-900">{resolvedCount}</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-[20px] shadow-lg border border-slate-100 flex items-center gap-4">
-            <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
-              <Clock className="w-6 h-6 text-amber-600" />
+          <div className="bg-white p-6 rounded-[20px] shadow-lg border border-slate-100 flex items-center gap-4 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-2 h-full bg-red-500" />
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+              <Clock className="w-6 h-6 text-red-600" />
             </div>
             <div>
               <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Pending</p>
               <p className="text-3xl font-bold text-slate-900">{pendingCount}</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-[20px] shadow-lg border border-slate-100 flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <RefreshCw className="w-6 h-6 text-blue-600" />
+          <div className="bg-white p-6 rounded-[20px] shadow-lg border border-slate-100 flex items-center gap-4 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-2 h-full bg-yellow-500" />
+            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+              <RefreshCw className="w-6 h-6 text-yellow-600" />
             </div>
             <div>
               <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">In Progress</p>

@@ -19,6 +19,7 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
   const [view, setView] = useState<View>('home');
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchComplaints = async () => {
     setLoading(true);
@@ -39,6 +40,13 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
     fetchComplaints();
   }, [user.id]);
 
+  const filteredComplaints = complaints.filter(c => 
+    c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.location && c.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    c.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const handleComplaintSubmitted = () => {
     fetchComplaints();
     setView('track');
@@ -50,14 +58,25 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
         return (
           <div className="flex flex-col items-center justify-center space-y-8 py-10">
             <h2 className="text-[40px] font-bold text-black flex items-center gap-2">
-              Hi Student <span className="animate-bounce">👋</span>
+              Welcome, {user.username} <span className="animate-bounce">👋</span>
             </h2>
             
             <div className="w-full max-w-[450px] bg-white rounded-[20px] shadow-xl p-10 text-center space-y-4">
               <h3 className="text-[24px] font-bold text-black">Complaint Status</h3>
-              <p className="text-[18px] text-slate-700">
-                {complaints.filter(c => c.status === 'pending').length} Pending | {complaints.filter(c => c.status === 'resolved').length} Resolved
-              </p>
+              <div className="flex justify-center gap-6">
+                <div className="flex flex-col items-center">
+                  <span className="w-3 h-3 bg-red-500 rounded-full mb-1"></span>
+                  <p className="text-sm font-bold text-slate-700">{complaints.filter(c => c.status === 'pending').length} Pending</p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="w-3 h-3 bg-yellow-500 rounded-full mb-1"></span>
+                  <p className="text-sm font-bold text-slate-700">{complaints.filter(c => c.status === 'in-progress').length} In Progress</p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="w-3 h-3 bg-emerald-500 rounded-full mb-1"></span>
+                  <p className="text-sm font-bold text-slate-700">{complaints.filter(c => c.status === 'resolved').length} Resolved</p>
+                </div>
+              </div>
             </div>
 
             <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
@@ -145,16 +164,27 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
               </div>
             ) : (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <h3 className="text-2xl font-bold text-slate-900">Track Your Issues</h3>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <button onClick={() => setView('suggestions')} className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg font-bold text-sm flex items-center gap-2">
                       <MessageSquare className="w-4 h-4" /> Suggestions
                     </button>
                     <button onClick={() => setView('home')} className="px-4 py-2 bg-slate-200 rounded-lg font-bold text-sm">Back</button>
                   </div>
                 </div>
-                <ComplaintList complaints={complaints} loading={loading} />
+
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by category, location, or keyword..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#6b84e3] focus:outline-none transition-all shadow-sm"
+                  />
+                </div>
+
+                <ComplaintList complaints={filteredComplaints} loading={loading} />
               </div>
             )}
           </div>

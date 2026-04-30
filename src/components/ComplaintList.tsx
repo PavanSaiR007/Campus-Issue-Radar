@@ -52,17 +52,40 @@ export default function ComplaintList({ complaints, loading, onStatusUpdate, isA
               <div className="flex-1 space-y-3">
                 <div className="flex items-center gap-3 flex-wrap">
                   <span className={cn(
-                    "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider",
-                    complaint.status === 'pending' && "bg-amber-100 text-amber-700",
-                    complaint.status === 'in-progress' && "bg-blue-100 text-blue-700",
+                    "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5",
+                    complaint.status === 'pending' && "bg-red-100 text-red-700",
+                    complaint.status === 'in-progress' && "bg-yellow-100 text-yellow-700",
                     complaint.status === 'resolved' && "bg-emerald-100 text-emerald-700"
                   )}>
+                    <span className={cn(
+                      "w-2 h-2 rounded-full",
+                      complaint.status === 'pending' && "bg-red-500",
+                      complaint.status === 'in-progress' && "bg-yellow-500",
+                      complaint.status === 'resolved' && "bg-emerald-500"
+                    )} />
                     {complaint.status.replace('-', ' ')}
                   </span>
+                  {complaint.urgency && (
+                    <span className={cn(
+                      "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider",
+                      complaint.urgency === 'Low' && "bg-slate-100 text-slate-700",
+                      complaint.urgency === 'Medium' && "bg-indigo-100 text-indigo-700",
+                      complaint.urgency === 'High' && "bg-orange-100 text-orange-700",
+                      complaint.urgency === 'Emergency' && "bg-red-600 text-white"
+                    )}>
+                      {complaint.urgency}
+                    </span>
+                  )}
                   <span className="flex items-center gap-1 text-xs font-medium text-slate-500">
                     <Tag className="w-3 h-3" />
                     {complaint.category}
                   </span>
+                  {complaint.location && (
+                    <span className="flex items-center gap-1 text-xs font-medium text-slate-500">
+                      <ChevronRight className="w-3 h-3" />
+                      {complaint.location}
+                    </span>
+                  )}
                   <span className="flex items-center gap-1 text-xs font-medium text-slate-500">
                     <Calendar className="w-3 h-3" />
                     {new Date(complaint.created_at).toLocaleDateString()}

@@ -29,6 +29,8 @@ db.exec(`
     title TEXT,
     description TEXT,
     category TEXT,
+    location TEXT,
+    urgency TEXT,
     status TEXT DEFAULT 'pending',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(student_id) REFERENCES users(id)
@@ -54,9 +56,19 @@ db.exec(`
 // Seed initial users if not exists
 const seedUsers = db.prepare("SELECT count(*) as count FROM users").get() as { count: number };
 if (seedUsers.count === 0) {
-  db.prepare("INSERT INTO users (username, password, role, register_no, department) VALUES (?, ?, ?, ?, ?)").run("student1", "password", "student", "22CSE123", "CSE");
-  db.prepare("INSERT INTO users (username, password, role, register_no, department) VALUES (?, ?, ?, ?, ?)").run("student2", "password", "student", "22ECE456", "ECE");
-  db.prepare("INSERT INTO users (username, password, role, register_no, department) VALUES (?, ?, ?, ?, ?)").run("student3", "password", "student", "22ME789", "ME");
+  // Ganesh (241FA04505), Dhanush (241FA04535), Pavan (241FA04528), Hardhik (241FA04518)
+  const students = [
+    { name: "Ganesh", reg: "241FA04505" },
+    { name: "Dhanush", reg: "241FA04535" },
+    { name: "Pavan", reg: "241FA04528" },
+    { name: "Hardhik", reg: "241FA04518" }
+  ];
+
+  for (const s of students) {
+    db.prepare("INSERT INTO users (username, password, role, register_no, department) VALUES (?, ?, ?, ?, ?)").run(s.name, "password", "student", s.reg, "CSE");
+  }
+  
+  // Also keep the generic ones if needed, or just these
   db.prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)").run("admin", "password", "admin");
 }
 
@@ -69,19 +81,40 @@ async function startServer() {
   // Auth API
   app.post("/api/login", (req, res) => {
     const { username, password } = req.body;
-    const user = db.prepare("SELECT * FROM users WHERE username = ? AND password = ?").get(username, password) as any;
+    // Modified to be case-insensitive for username OR register_no
+    const user = db.prepare(`
+      SELECT * FROM users 
+      WHERE (LOWER(username) = LOWER(?) OR LOWER(register_no) = LOWER(?)) 
+      AND password = ?
+    `).get(username, username, password) as any;
+
     if (user) {
-      res.json({ id: user.id, username: user.username, role: user.role });
+      res.json({ id: user.id, username: user.username, role: user.role, register_no: user.register_no, department: user.department });
     } else {
       res.status(401).json({ error: "Invalid credentials" });
     }
   });
 
+  // Register API
+  app.post("/api/register", (req, res) => {
+    const { username, password, register_no, department } = req.body;
+    try {
+      const info = db.prepare("INSERT INTO users (username, password, role, register_no, department) VALUES (?, ?, 'student', ?, ?)").run(username, password, register_no, department || 'CSE');
+      res.json({ id: info.lastInsertRowid, message: "User registered successfully" });
+    } catch (err: any) {
+      if (err.message.includes('UNIQUE constraint failed')) {
+        res.status(400).json({ error: "Username already exists" });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  });
+
   // Complaints API
   app.post("/api/complaints", (req, res) => {
-    const { student_id, title, description, category, images } = req.body;
+    const { student_id, title, description, category, location, urgency, images } = req.body;
     
-    const info = db.prepare("INSERT INTO complaints (student_id, title, description, category) VALUES (?, ?, ?, ?)").run(student_id, title, description, category);
+    const info = db.prepare("INSERT INTO complaints (student_id, title, description, category, location, urgency) VALUES (?, ?, ?, ?, ?, ?)").run(student_id, title, description, category, location, urgency);
     const complaintId = info.lastInsertRowid;
 
     if (images && Array.isArray(images)) {
